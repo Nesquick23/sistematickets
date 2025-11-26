@@ -1,0 +1,16 @@
+.ticket-alta {
+    border-left: 6px solid red !important;
+    background-color: #ffe6e6;
+}
+
+.ticket-normal {
+    border-left: 6px solid orange !important;
+}
+
+.ticket-baja {
+    border-left: 6px solid green !important;
+}
+
+.ticket-leido {
+    opacity: 0.6;
+}
