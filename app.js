@@ -1,11 +1,11 @@
 class Message {
-    constructor(nombre, email, texto, prioridad) {
+    constructor(nombre, email, texto, prioridad, fecha = new Date().toLocaleString(), leido = false) {
         this.nombre = nombre;
         this.email = email;
         this.texto = texto;
         this.prioridad = prioridad;
-        this.fecha = new Date().toLocaleString();
-        this.leido = false;
+        this.fecha = fecha;
+        this.leido = leido;
     }
 
     toHTML(id) {
