@@ -29,12 +29,10 @@ class Message {
 // Cargar tickets desde localStorage
 let tickets = JSON.parse(localStorage.getItem("tickets")) || [];
 
-// Guardar tickets en localStorage
 function guardar() {
     localStorage.setItem("tickets", JSON.stringify(tickets));
 }
 
-// Renderizar tickets
 function render() {
     const ul = document.getElementById("listaTickets");
     ul.innerHTML = "";
@@ -63,8 +61,8 @@ function render() {
         })
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
         .forEach(t => {
-            ul.innerHTML += t.toHTML(); // Usar objeto existente, no crear nuevo
-            if (t.prioridad === "alta" && !t.leido) urgentes++; // Solo contar no leídos
+            ul.innerHTML += new Message(t.nombre, t.email, t.texto, t.prioridad).toHTML();
+            if (t.prioridad === "alta") urgentes++;
         });
 
     document.getElementById("urgentes").innerText = `${urgentes} Urgentes`;
@@ -77,13 +75,11 @@ function validar() {
     const mensaje = document.getElementById("mensaje").value.trim();
 
     let ok = true;
-
     document.getElementById("errNombre").textContent = nombre.length < 3 ? "Mínimo 3 caracteres" : "";
     document.getElementById("errEmail").textContent = !email.includes("@") ? "Email inválido" : "";
     document.getElementById("errMensaje").textContent = mensaje.length < 10 ? "Mínimo 10 caracteres" : "";
 
     if (nombre.length < 3 || !email.includes("@") || mensaje.length < 10) ok = false;
-
     return ok;
 }
 
@@ -112,20 +108,18 @@ function eliminar(id) {
     render();
 }
 
-// Marcar ticket leído / no leído por ID
+// Marcar ticket leído/no leído por ID
 function marcarLeido(id) {
     const t = tickets.find(t => t.id === id);
-    if (t) {
-        t.leido = !t.leido;
-        guardar();
-        render();
-    }
+    if (t) t.leido = !t.leido;
+    guardar();
+    render();
 }
 
 // Eventos de filtros y búsqueda
 document.getElementById("filtrarPrio").onchange = render;
 document.getElementById("buscarTexto").onkeyup = render;
-document.getElementById("tipoBusqueda").onchange = render;
+document.getElementById("tipoBusqueda").onchange = render; // Para cambiar entre ID, nombre o mensaje
 
 // Render inicial
 render();
