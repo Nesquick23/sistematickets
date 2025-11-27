@@ -19,3 +19,4 @@ URL de la página publicada:
 👉 https://nesquick23.github.io/sistematickets/
 
 ## 🔧 Estructura
+Todo terminado :)
