@@ -16,6 +16,6 @@ Solo descarga el repositorio y abre `index.html` en tu navegador.
 
 ## 🌐 Publicación en GitHub Pages
 URL de la página publicada:  
-👉 https://NESQUICK23API.github.io/sistematickets/
+👉 https://nesquick23.github.io/sistematickets/
 
 ## 🔧 Estructura
