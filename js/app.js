@@ -1,6 +1,6 @@
 class Message {
     constructor(nombre, email, texto, prioridad) {
-        this.id = Date.now(); // ID único
+        this.id = Date.now(); // ID único, se mantiene
         this.nombre = nombre;
         this.email = email;
         this.texto = texto;
@@ -14,8 +14,8 @@ class Message {
             <li class="list-group-item d-flex justify-content-between align-items-start
             ${this.leido ? "ticket-leido" : ""} ticket-${this.prioridad}">
                 <div>
-                    <strong>${this.nombre}</strong> (${this.email})
-                    <p class="m-0">${this.texto}</p>
+                    <strong class="${this.leido ? "text-decoration-line-through text-muted" : ""}">${this.nombre}</strong> (${this.email})
+                    <p class="m-0 ${this.leido ? "text-decoration-line-through text-muted" : ""}">${this.texto}</p>
                     <small>ID: ${this.id} | ${this.fecha}</small>
                 </div>
                 <div>
@@ -29,10 +29,12 @@ class Message {
 // Cargar tickets desde localStorage
 let tickets = JSON.parse(localStorage.getItem("tickets")) || [];
 
+// Guardar tickets en localStorage
 function guardar() {
     localStorage.setItem("tickets", JSON.stringify(tickets));
 }
 
+// Renderizar tickets
 function render() {
     const ul = document.getElementById("listaTickets");
     ul.innerHTML = "";
@@ -46,9 +48,8 @@ function render() {
     tickets
         .filter(t => filtro === "todas" || t.prioridad === filtro)
         .filter(t => {
-            if (!busqueda) return true; // Si no hay búsqueda, muestra todo
-
-            switch(tipoBusqueda) {
+            if (!busqueda) return true;
+            switch (tipoBusqueda) {
                 case "id":
                     return t.id.toString().includes(busqueda);
                 case "nombre":
@@ -61,14 +62,14 @@ function render() {
         })
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
         .forEach(t => {
-            ul.innerHTML += new Message(t.nombre, t.email, t.texto, t.prioridad).toHTML();
-            if (t.prioridad === "alta") urgentes++;
+            ul.innerHTML += t.toHTML(); // Usar objeto existente, no crear nuevo
+            if (t.prioridad === "alta" && !t.leido) urgentes++; // Solo contar no leídos
         });
 
     document.getElementById("urgentes").innerText = `${urgentes} Urgentes`;
 }
 
-// Validación del formulario
+// Validar formulario
 function validar() {
     const nombre = document.getElementById("nombre").value.trim();
     const email = document.getElementById("email").value.trim();
@@ -101,24 +102,27 @@ document.getElementById("ticketForm").addEventListener("submit", e => {
     e.target.reset();
 });
 
-// Eliminar ticket por índice
-function eliminar(i) {
-    tickets.splice(i, 1); // Elimina el ticket del array
-    guardar();            // Guarda cambios en localStorage
-    render();             // Vuelve a dibujar la lista
+// Eliminar ticket por ID
+function eliminar(id) {
+    tickets = tickets.filter(t => t.id !== id);
+    guardar();
+    render();
 }
 
-// Marcar ticket leído / no leído por índice
-function marcarLeido(i) {
-    tickets[i].leido = !tickets[i].leido; // Cambia el estado de leído
-    guardar();                             // Guarda cambios en localStorage
-    render();                              // Vuelve a dibujar la lista
+// Marcar ticket leído/no leído por ID
+function marcarLeido(id) {
+    const t = tickets.find(t => t.id === id);
+    if (t) {
+        t.leido = !t.leido;
+        guardar();
+        render();
+    }
 }
 
 // Eventos de filtros y búsqueda
 document.getElementById("filtrarPrio").onchange = render;
 document.getElementById("buscarTexto").onkeyup = render;
-document.getElementById("tipoBusqueda").onchange = render; // Para cambiar entre ID, nombre o mensaje
+document.getElementById("tipoBusqueda").onchange = render;
 
 // Render inicial
 render();
