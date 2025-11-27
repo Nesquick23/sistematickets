@@ -39,7 +39,6 @@ function render() {
 
     const filtro = document.getElementById("filtrarPrio").value;
     const busqueda = document.getElementById("buscarTexto").value.toLowerCase();
-    const tipoBusqueda = document.getElementById("tipoBusqueda").value; // ID, nombre o mensaje
 
     let urgentes = 0;
 
@@ -47,17 +46,11 @@ function render() {
         .filter(t => filtro === "todas" || t.prioridad === filtro)
         .filter(t => {
             if (!busqueda) return true; // Si no hay búsqueda, muestra todo
-
-            switch(tipoBusqueda) {
-                case "id":
-                    return t.id.toString().includes(busqueda);
-                case "nombre":
-                    return t.nombre.toLowerCase().includes(busqueda);
-                case "mensaje":
-                    return t.texto.toLowerCase().includes(busqueda);
-                default:
-                    return true;
-            }
+            return (
+                t.nombre.toLowerCase().includes(busqueda) ||
+                t.texto.toLowerCase().includes(busqueda) ||
+                t.id.toString().includes(busqueda)
+            );
         })
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
         .forEach(t => {
@@ -119,7 +112,6 @@ function marcarLeido(id) {
 // Eventos de filtros y búsqueda
 document.getElementById("filtrarPrio").onchange = render;
 document.getElementById("buscarTexto").onkeyup = render;
-document.getElementById("tipoBusqueda").onchange = render; // Para cambiar entre ID, nombre o mensaje
 
 // Render inicial
 render();
