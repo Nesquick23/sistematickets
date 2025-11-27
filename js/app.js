@@ -1,126 +1,89 @@
-class Message {
-    constructor(nombre, email, texto, prioridad) {
-        this.id = Date.now(); // ID único
-        this.nombre = nombre;
-        this.email = email;
-        this.texto = texto;
-        this.prioridad = prioridad;
-        this.fecha = new Date().toLocaleString();
-        this.leido = false;
-    }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de tickets</title>
 
-    toHTML() {
-        return `
-            <li class="list-group-item d-flex justify-content-between align-items-start
-            ${this.leido ? "ticket-leido" : ""} ticket-${this.prioridad}">
-                <div>
-                    <strong class="${this.leido ? "text-decoration-line-through text-muted" : ""}">${this.nombre}</strong> (${this.email})
-                    <p class="m-0 ${this.leido ? "text-decoration-line-through text-muted" : ""}">${this.texto}</p>
-                    <small>ID: ${this.id} | ${this.fecha}</small>
-                </div>
-                <div>
-                    <button class="btn btn-success btn-sm" onclick="marcarLeido(${this.id})">✔</button>
-                    <button class="btn btn-danger btn-sm" onclick="eliminar(${this.id})">🗑</button>
-                </div>
-            </li>`;
-    }
-}
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-// Cargar tickets desde localStorage
-let tickets = JSON.parse(localStorage.getItem("tickets")) || [];
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-light">
 
-function guardar() {
-    localStorage.setItem("tickets", JSON.stringify(tickets));
-}
+<header class="bg-dark text-white text-center p-3">
+    <h1>Sistema de tickets</h1>
+</header>
 
-function render() {
-    const ul = document.getElementById("listaTickets");
-    ul.innerHTML = "";
+<main class="container my-4">
+    <section class="card p-4 shadow-sm">
+        <h3 class="mb-3">Crear ticket</h3>
 
-    const filtro = document.getElementById("filtrarPrio").value;
-    const busqueda = document.getElementById("buscarTexto").value.toLowerCase();
-    const tipoBusqueda = document.getElementById("tipoBusqueda").value;
+        <form id="ticketForm">
+            <div class="mb-3">
+                <label class="form-label">Nombre:</label>
+                <input type="text" id="nombre" class="form-control" required>
+                <p class="text-danger small" id="errNombre"></p>
+            </div>
 
-    let urgentes = 0;
+            <div class="mb-3">
+                <label class="form-label">Email:</label>
+                <input type="email" id="email" class="form-control" required>
+                <p class="text-danger small" id="errEmail"></p>
+            </div>
 
-    tickets
-        .filter(t => filtro === "todas" || t.prioridad === filtro)
-        .filter(t => {
-            if (!busqueda) return true;
-            switch(tipoBusqueda) {
-                case "id":
-                    return t.id.toString().includes(busqueda);
-                case "nombre":
-                    return t.nombre.toLowerCase().includes(busqueda);
-                case "mensaje":
-                    return t.texto.toLowerCase().includes(busqueda);
-                default:
-                    return true;
-            }
-        })
-        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-        .forEach(t => {
-            ul.innerHTML += t.toHTML(); // USAR EL OBJETO ORIGINAL, no crear uno nuevo
-            if (t.prioridad === "alta" && !t.leido) urgentes++; // Solo contar urgentes no leídos
-        });
+            <div class="mb-3">
+                <label class="form-label">Prioridad:</label>
+                <select id="prioridad" class="form-select">
+                    <option value="baja">Baja</option>
+                    <option value="normal">Normal</option>
+                    <option value="alta">Alta</option>
+                </select>
+            </div>
 
-    document.getElementById("urgentes").innerText = `${urgentes} Urgentes`;
-}
+            <div class="mb-3">
+                <label class="form-label">Mensaje:</label>
+                <textarea id="mensaje" rows="3" class="form-control" required></textarea>
+                <p class="text-danger small" id="errMensaje"></p>
+            </div>
 
-// Validación del formulario
-function validar() {
-    const nombre = document.getElementById("nombre").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const mensaje = document.getElementById("mensaje").value.trim();
+            <button type="submit" class="btn btn-primary w-100">Enviar ticket</button>
+        </form>
+    </section>
 
-    let ok = true;
-    document.getElementById("errNombre").textContent = nombre.length < 3 ? "Mínimo 3 caracteres" : "";
-    document.getElementById("errEmail").textContent = !email.includes("@") ? "Email inválido" : "";
-    document.getElementById("errMensaje").textContent = mensaje.length < 10 ? "Mínimo 10 caracteres" : "";
+    <section class="mt-4">
+        <h3>Tickets <span id="urgentes" class="badge bg-danger">0 Urgentes</span></h3>
 
-    if (nombre.length < 3 || !email.includes("@") || mensaje.length < 10) ok = false;
-    return ok;
-}
+        <!-- Selección del tipo de búsqueda -->
+        <select id="tipoBusqueda" class="form-select my-2">
+            <option value="nombre">Buscar por Nombre</option>
+            <option value="mensaje">Buscar por Mensaje</option>
+            <option value="id">Buscar por ID</option>
+        </select>
 
-// Crear nuevo ticket
-document.getElementById("ticketForm").addEventListener("submit", e => {
-    e.preventDefault();
-    if (!validar()) return;
+        <!-- Barra de búsqueda -->
+        <input type="text" id="buscarTexto" class="form-control my-2" placeholder="Buscar ticket...">
 
-    const obj = new Message(
-        document.getElementById("nombre").value,
-        document.getElementById("email").value,
-        document.getElementById("mensaje").value,
-        document.getElementById("prioridad").value
-    );
+        <!-- Filtro de prioridad -->
+        <select id="filtrarPrio" class="form-select my-2">
+            <option value="todas">Todas</option>
+            <option value="alta">Alta</option>
+            <option value="normal">Normal</option>
+            <option value="baja">Baja</option>
+        </select>
 
-    tickets.push(obj);
-    guardar();
-    render();
-    e.target.reset();
-});
+        <ul id="listaTickets" class="list-group"></ul>
+    </section>
+</main>
 
-// Eliminar ticket por ID
-function eliminar(id) {
-    tickets = tickets.filter(t => t.id !== id);
-    guardar();
-    render();
-}
+<footer class="bg-secondary text-white text-center p-3">
+    <p>Unidad 4 - Sistema de tickets</p>
+</footer>
 
-// Marcar ticket leído/no leído por ID
-function marcarLeido(id) {
-    const t = tickets.find(t => t.id === id);
-    if (t) {
-        t.leido = !t.leido; // Cambiar estado
-        guardar();
-        render();
-    }
-}
+<!-- JS -->
+<script src="js/app.js"></script>
 
-// Eventos de filtros y búsqueda
-document.getElementById("filtrarPrio").onchange = render;
-document.getElementById("buscarTexto").onkeyup = render;
-document.getElementById("tipoBusqueda").onchange = render;
-
-// Render inicial
-render();
+</body>
+</html>
