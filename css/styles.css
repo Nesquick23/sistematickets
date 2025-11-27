@@ -1,1 +1,16 @@
+/* Estilos de prioridad */
+.ticket-alta {
+    border-left: 5px solid red;
+}
+.ticket-normal {
+    border-left: 5px solid orange;
+}
+.ticket-baja {
+    border-left: 5px solid green;
+}
 
+/* Ticket marcado como leído */
+.ticket-leido {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
