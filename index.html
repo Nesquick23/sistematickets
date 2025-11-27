@@ -56,8 +56,17 @@
     <section class="mt-4">
         <h3>Tickets <span id="urgentes" class="badge bg-danger">0 Urgentes</span></h3>
 
+        <!-- Selección del tipo de búsqueda -->
+        <select id="tipoBusqueda" class="form-select my-2">
+            <option value="nombre">Buscar por Nombre</option>
+            <option value="mensaje">Buscar por Mensaje</option>
+            <option value="id">Buscar por ID</option>
+        </select>
+
+        <!-- Barra de búsqueda -->
         <input type="text" id="buscarTexto" class="form-control my-2" placeholder="Buscar ticket...">
 
+        <!-- Filtro de prioridad -->
         <select id="filtrarPrio" class="form-select my-2">
             <option value="todas">Todas</option>
             <option value="alta">Alta</option>
