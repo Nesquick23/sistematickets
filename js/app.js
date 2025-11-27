@@ -1,30 +1,32 @@
 class Message {
-    constructor(nombre, email, texto, prioridad, fecha = new Date().toLocaleString(), leido = false) {
+    constructor(nombre, email, texto, prioridad) {
+        this.id = Date.now(); // ID único
         this.nombre = nombre;
         this.email = email;
         this.texto = texto;
         this.prioridad = prioridad;
-        this.fecha = fecha;
-        this.leido = leido;
+        this.fecha = new Date().toLocaleString();
+        this.leido = false;
     }
 
-    toHTML(id) {
+    toHTML() {
         return `
             <li class="list-group-item d-flex justify-content-between align-items-start
             ${this.leido ? "ticket-leido" : ""} ticket-${this.prioridad}">
                 <div>
                     <strong>${this.nombre}</strong> (${this.email})
                     <p class="m-0">${this.texto}</p>
-                    <small>${this.fecha}</small>
+                    <small>ID: ${this.id} | ${this.fecha}</small>
                 </div>
                 <div>
-                    <button class="btn btn-success btn-sm" onclick="marcarLeido(${id})">✔</button>
-                    <button class="btn btn-danger btn-sm" onclick="eliminar(${id})">🗑</button>
+                    <button class="btn btn-success btn-sm" onclick="marcarLeido(${this.id})">✔</button>
+                    <button class="btn btn-danger btn-sm" onclick="eliminar(${this.id})">🗑</button>
                 </div>
             </li>`;
     }
 }
 
+// Cargar tickets desde localStorage
 let tickets = JSON.parse(localStorage.getItem("tickets")) || [];
 
 function guardar() {
@@ -35,30 +37,44 @@ function render() {
     const ul = document.getElementById("listaTickets");
     ul.innerHTML = "";
 
-    let filtro = document.getElementById("filtrarPrio").value;
-    let busqueda = document.getElementById("buscarTexto").value.toLowerCase();
+    const filtro = document.getElementById("filtrarPrio").value;
+    const busqueda = document.getElementById("buscarTexto").value.toLowerCase();
+    const tipoBusqueda = document.getElementById("tipoBusqueda").value; // ID, nombre o mensaje
 
     let urgentes = 0;
 
     tickets
         .filter(t => filtro === "todas" || t.prioridad === filtro)
-        .filter(t => t.texto.toLowerCase().includes(busqueda))
+        .filter(t => {
+            if (!busqueda) return true; // Si no hay búsqueda, muestra todo
+
+            switch(tipoBusqueda) {
+                case "id":
+                    return t.id.toString().includes(busqueda);
+                case "nombre":
+                    return t.nombre.toLowerCase().includes(busqueda);
+                case "mensaje":
+                    return t.texto.toLowerCase().includes(busqueda);
+                default:
+                    return true;
+            }
+        })
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-        .forEach((t, i) => {
-            ul.innerHTML += new Message(t.nombre, t.email, t.texto, t.prioridad, t.fecha, t.leido).toHTML(i);
+        .forEach(t => {
+            ul.innerHTML += new Message(t.nombre, t.email, t.texto, t.prioridad).toHTML();
             if (t.prioridad === "alta") urgentes++;
         });
 
     document.getElementById("urgentes").innerText = `${urgentes} Urgentes`;
 }
 
+// Validación del formulario
 function validar() {
-    let ok = true;
-
     const nombre = document.getElementById("nombre").value.trim();
     const email = document.getElementById("email").value.trim();
     const mensaje = document.getElementById("mensaje").value.trim();
 
+    let ok = true;
     document.getElementById("errNombre").textContent = nombre.length < 3 ? "Mínimo 3 caracteres" : "";
     document.getElementById("errEmail").textContent = !email.includes("@") ? "Email inválido" : "";
     document.getElementById("errMensaje").textContent = mensaje.length < 10 ? "Mínimo 10 caracteres" : "";
@@ -67,6 +83,7 @@ function validar() {
     return ok;
 }
 
+// Crear nuevo ticket
 document.getElementById("ticketForm").addEventListener("submit", e => {
     e.preventDefault();
     if (!validar()) return;
@@ -84,19 +101,25 @@ document.getElementById("ticketForm").addEventListener("submit", e => {
     e.target.reset();
 });
 
-function eliminar(i) {
-    tickets.splice(i, 1);
+// Eliminar ticket por ID
+function eliminar(id) {
+    tickets = tickets.filter(t => t.id !== id);
     guardar();
     render();
 }
 
-function marcarLeido(i) {
-    tickets[i].leido = !tickets[i].leido;
+// Marcar ticket leído/no leído por ID
+function marcarLeido(id) {
+    const t = tickets.find(t => t.id === id);
+    if (t) t.leido = !t.leido;
     guardar();
     render();
 }
 
+// Eventos de filtros y búsqueda
 document.getElementById("filtrarPrio").onchange = render;
 document.getElementById("buscarTexto").onkeyup = render;
+document.getElementById("tipoBusqueda").onchange = render; // Para cambiar entre ID, nombre o mensaje
 
+// Render inicial
 render();
