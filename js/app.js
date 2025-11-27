@@ -1,6 +1,6 @@
 class Message {
     constructor(nombre, email, texto, prioridad) {
-        this.id = Date.now(); // ID único
+        this.id = Date.now(); // ID único, se mantiene
         this.nombre = nombre;
         this.email = email;
         this.texto = texto;
@@ -14,8 +14,8 @@ class Message {
             <li class="list-group-item d-flex justify-content-between align-items-start
             ${this.leido ? "ticket-leido" : ""} ticket-${this.prioridad}">
                 <div>
-                    <strong>${this.nombre}</strong> (${this.email})
-                    <p class="m-0">${this.texto}</p>
+                    <strong class="${this.leido ? "text-decoration-line-through text-muted" : ""}">${this.nombre}</strong> (${this.email})
+                    <p class="m-0 ${this.leido ? "text-decoration-line-through text-muted" : ""}">${this.texto}</p>
                     <small>ID: ${this.id} | ${this.fecha}</small>
                 </div>
                 <div>
@@ -48,9 +48,8 @@ function render() {
     tickets
         .filter(t => filtro === "todas" || t.prioridad === filtro)
         .filter(t => {
-            if (!busqueda) return true; // Si no hay búsqueda, muestra todo
-
-            switch(tipoBusqueda) {
+            if (!busqueda) return true;
+            switch (tipoBusqueda) {
                 case "id":
                     return t.id.toString().includes(busqueda);
                 case "nombre":
@@ -70,20 +69,18 @@ function render() {
     document.getElementById("urgentes").innerText = `${urgentes} Urgentes`;
 }
 
-// Validación del formulario
+// Validar formulario
 function validar() {
     const nombre = document.getElementById("nombre").value.trim();
     const email = document.getElementById("email").value.trim();
     const mensaje = document.getElementById("mensaje").value.trim();
 
     let ok = true;
-
     document.getElementById("errNombre").textContent = nombre.length < 3 ? "Mínimo 3 caracteres" : "";
     document.getElementById("errEmail").textContent = !email.includes("@") ? "Email inválido" : "";
     document.getElementById("errMensaje").textContent = mensaje.length < 10 ? "Mínimo 10 caracteres" : "";
 
     if (nombre.length < 3 || !email.includes("@") || mensaje.length < 10) ok = false;
-
     return ok;
 }
 
@@ -112,7 +109,7 @@ function eliminar(id) {
     render();
 }
 
-// Marcar ticket leído / no leído por ID
+// Marcar ticket leído/no leído por ID
 function marcarLeido(id) {
     const t = tickets.find(t => t.id === id);
     if (t) {
