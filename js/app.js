@@ -14,8 +14,8 @@ class Message {
             <li class="list-group-item d-flex justify-content-between align-items-start
             ${this.leido ? "ticket-leido" : ""} ticket-${this.prioridad}">
                 <div>
-                    <strong>${this.nombre}</strong> (${this.email})
-                    <p class="m-0">${this.texto}</p>
+                    <strong class="${this.leido ? "text-decoration-line-through text-muted" : ""}">${this.nombre}</strong> (${this.email})
+                    <p class="m-0 ${this.leido ? "text-decoration-line-through text-muted" : ""}">${this.texto}</p>
                     <small>ID: ${this.id} | ${this.fecha}</small>
                 </div>
                 <div>
@@ -39,15 +39,14 @@ function render() {
 
     const filtro = document.getElementById("filtrarPrio").value;
     const busqueda = document.getElementById("buscarTexto").value.toLowerCase();
-    const tipoBusqueda = document.getElementById("tipoBusqueda").value; // ID, nombre o mensaje
+    const tipoBusqueda = document.getElementById("tipoBusqueda").value;
 
     let urgentes = 0;
 
     tickets
         .filter(t => filtro === "todas" || t.prioridad === filtro)
         .filter(t => {
-            if (!busqueda) return true; // Si no hay búsqueda, muestra todo
-
+            if (!busqueda) return true;
             switch(tipoBusqueda) {
                 case "id":
                     return t.id.toString().includes(busqueda);
@@ -61,8 +60,8 @@ function render() {
         })
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
         .forEach(t => {
-            ul.innerHTML += new Message(t.nombre, t.email, t.texto, t.prioridad).toHTML();
-            if (t.prioridad === "alta") urgentes++;
+            ul.innerHTML += t.toHTML(); // USAR EL OBJETO ORIGINAL, no crear uno nuevo
+            if (t.prioridad === "alta" && !t.leido) urgentes++; // Solo contar urgentes no leídos
         });
 
     document.getElementById("urgentes").innerText = `${urgentes} Urgentes`;
@@ -111,15 +110,17 @@ function eliminar(id) {
 // Marcar ticket leído/no leído por ID
 function marcarLeido(id) {
     const t = tickets.find(t => t.id === id);
-    if (t) t.leido = !t.leido;
-    guardar();
-    render();
+    if (t) {
+        t.leido = !t.leido; // Cambiar estado
+        guardar();
+        render();
+    }
 }
 
 // Eventos de filtros y búsqueda
 document.getElementById("filtrarPrio").onchange = render;
 document.getElementById("buscarTexto").onkeyup = render;
-document.getElementById("tipoBusqueda").onchange = render; // Para cambiar entre ID, nombre o mensaje
+document.getElementById("tipoBusqueda").onchange = render;
 
 // Render inicial
 render();
